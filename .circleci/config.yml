@@ -30,7 +30,7 @@ jobs:
       - run:
           command: npm install 
       - run:
-          command: ( cd step-func ; sls deploy )
+          command: ( cd step-function ; sls deploy )
             #- run:
             #command: chmod +x ./.circleci/install-credentials.sh
             #- run:
