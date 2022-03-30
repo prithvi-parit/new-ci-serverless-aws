@@ -1,0 +1,84 @@
+service: new-step-function-demo
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-step-functions
+provider:
+  name: aws
+  runtime: python3.8
+  profile: serverlessuser1
+  region: us-east-1
+
+custom:
+  accountId: 549364116663
+
+
+stepFunctions:
+  stateMachines:
+    hellostepfunc1:
+      events:
+        - http:
+            path: gofunction
+            method: GET
+
+      definition:
+        Comment: A description of my state machine
+        StartAt: Lambda Invoke
+        States:
+          Lambda Invoke:
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke
+            OutputPath: "$.Payload"
+            Parameters:
+              Payload.$: "$"
+              FunctionName: arn:aws:lambda:us-east-1:549364116663:function:download-data-dev-f1:$LATEST
+            Retry:
+            - ErrorEquals:
+              - Lambda.ServiceException
+              - Lambda.AWSLambdaException
+              - Lambda.SdkClientException
+              IntervalSeconds: 2
+              MaxAttempts: 6
+              BackoffRate: 2
+            Next: Lambda Invoke (1)
+            Catch:
+            - ErrorEquals:
+              - States.TaskFailed
+              Next: Lambda Invoke (2)
+          Lambda Invoke (1):
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke
+            OutputPath: "$.Payload"
+            Parameters:
+              Payload.$: "$"
+              FunctionName: arn:aws:lambda:us-east-1:549364116663:function:upload-s3-dev-f1:$LATEST
+            Retry:
+            - ErrorEquals:
+              - Lambda.ServiceException
+              - Lambda.AWSLambdaException
+              - Lambda.SdkClientException
+              IntervalSeconds: 2
+              MaxAttempts: 6
+              BackoffRate: 2
+            Next: Lambda Invoke (2)
+            Catch:
+            - ErrorEquals:
+              - States.TaskFailed
+              Next: Lambda Invoke (2)
+          Lambda Invoke (2):
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke
+            OutputPath: "$.Payload"
+            Parameters:
+              Payload.$: "$"
+              FunctionName: arn:aws:lambda:us-east-1:549364116663:function:call-new-step-func-dev-f1:$LATEST
+            Retry:
+            - ErrorEquals:
+              - Lambda.ServiceException
+              - Lambda.AWSLambdaException
+              - Lambda.SdkClientException
+              IntervalSeconds: 2
+              MaxAttempts: 6
+              BackoffRate: 2
+            End: true

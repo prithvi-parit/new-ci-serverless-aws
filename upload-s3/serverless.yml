@@ -1,0 +1,12 @@
+service: upload-s3
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.8
+  profile: serverlessuser1
+functions:
+  f1:
+    handler: handler.f1
+
