@@ -17,10 +17,7 @@ custom:
 stepFunctions:
   stateMachines:
     hellostepfunc1:
-      events:
-        - http:
-            path: gofunction
-            method: GET
+      
 
       definition:
         Comment: A description of my state machine
